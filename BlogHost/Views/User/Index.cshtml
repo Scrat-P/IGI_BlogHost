@@ -1,0 +1,28 @@
+﻿@model IEnumerable<BlogHost.Models.ApplicationUser>
+@{
+    ViewData["Title"] = "Users list";
+}
+<h2>
+    Users list
+    <div class='pull-right'>
+        <a class="btn btn-primary" asp-action="Create">Add new</a>
+    </div>
+</h2>
+<table class="table table-hover">
+    <tr>
+        <th>Username</th>
+        <th>Actions</th>
+    </tr>
+    @foreach (var user in Model)
+    {
+        <tr>
+            <td>@user.UserName</td>
+            <td>
+                <form asp-action="Delete" asp-route-id="@user.Id" method="post">
+                    <a class="btn btn-sm btn-default" asp-action="Edit" asp-route-id="@user.Id">Edit</a>
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+</table>

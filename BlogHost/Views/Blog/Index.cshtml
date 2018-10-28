@@ -1,0 +1,15 @@
+﻿@model IndexViewModel<Blog>
+@{
+    ViewData["Title"] = "My Blogs";
+}
+
+@foreach (Blog blog in Model.Items)
+{
+    <div>
+        <h2>@blog.Title</h2>
+        <p>@blog.Description<p>
+    </div>
+    <hr>
+}
+
+<page-link page-model="Model.PageViewModel" page-action="Index"></page-link>

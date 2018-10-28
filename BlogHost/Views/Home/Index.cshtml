@@ -1,0 +1,83 @@
+﻿@model IEnumerable<BlogHost.Models.Post>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<section class="blog-area section">
+    <div class="container">
+    
+        <div class="row">
+
+            <div class="col-lg-8 col-md-12">
+                <div class="row">
+                    @foreach (Post post in Model)
+                    {
+                        <div class="col-md-6 col-sm-12">
+                            <div class="card h-100">
+                                <div class="single-post post-style-1">
+
+                                    <div class="blog-image"><img src="~/images/default-blog-image.jpg" alt="Blog Image"></div>
+
+                                    <a class="avatar" href="#"><img src="~/images/default-user-image.png" alt="Profile Image"></a>
+
+                                    <div class="blog-info">
+
+                                        <h4 class="title">
+                                            <a asp-controller="Post" asp-action="Show" asp-route-id="@post.Id">
+                                                <b>
+                                                    @post.Title
+                                                </b>
+                                            </a>
+                                        </h4>
+
+                                        <ul class="post-footer">
+                                            <li><a href="#"><i class="ion-heart"></i>57</a></li>
+                                            <li><a href="#"><i class="ion-chatbubble"></i>6</a></li>
+                                        </ul>
+
+                                    </div><!-- blog-info -->
+                                </div><!-- single-post -->
+                            </div><!-- card -->
+                        </div><!-- col-md-6 col-sm-12 -->
+                    }
+                </div><!-- row -->
+
+            </div><!-- col-lg-8 col-md-12 -->
+
+            <div class="col-lg-4 col-md-12 ">
+
+                <div class="single-post info-area">
+
+                    <div class="about-area">
+                        <h4 class="left-panel-title"><b>ABOUT BONA</b></h4>
+                        <p>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+                            ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur
+                            Ut enim ad minim veniam
+                        </p>
+                    </div>
+
+                    <div class="tag-area">
+
+                        <h4 class="left-panel-title"><b>POPULAR TAGS</b></h4>
+                        <ul>
+                            <li><a href="#">Manual</a></li>
+                            <li><a href="#">Liberty</a></li>
+                            <li><a href="#">Recomendation</a></li>
+                            <li><a href="#">Interpritation</a></li>
+                            <li><a href="#">Manual</a></li>
+                            <li><a href="#">Liberty</a></li>
+                            <li><a href="#">Recomendation</a></li>
+                            <li><a href="#">Interpritation</a></li>
+                        </ul>
+
+                    </div><!-- tag-area -->
+
+                </div><!-- info-area -->
+
+            </div><!-- col-lg-4 col-md-12 -->
+
+        </div><!-- row -->
+
+    </div><!-- container -->
+</section><!-- section -->

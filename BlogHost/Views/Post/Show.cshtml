@@ -1,0 +1,54 @@
+﻿@model BlogHost.Models.Post
+
+@{
+    ViewData["Title"] = "Post details";
+}
+
+<div>
+    <h2>@Model.Title</h2>
+    <p>@Model.Text<p>
+</div>
+<div class="comments">
+    @if (User.Identity.IsAuthenticated)
+    {
+        <form class="form" action="@($"{Model.Id}/comments")" method="post">
+            <div class="form-group">
+                <label for="comment">Comment:</label>
+                <textarea class="form-control" id="comment" name="Text" rows="5"></textarea>
+            </div>
+            <button class="btn btn-success">Submit</button>
+        </form>
+    }
+    <h2 class="mt-2">Comments</h2>
+    @foreach (Comment comment in Model.Comments)
+    {
+        <div>
+            <h2>@comment.Author</h2>
+            <p>@comment.Text<p>
+        </div>
+        <hr>
+    }
+    <div id="comments"></div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+    $(function () {
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: "Post/Show/@Model.Id/comments",
+            success: function(data) {
+                var comment, comments, i, len;
+                comments = data;
+                alert("Hello!")
+                for (i = 0, len = comments.length; i < len; i++)
+                {
+                    comment = comments[i];
+                    $("#comments").prepend("<div class='card comment'>" + comment.text + "</div>");
+                }
+            }
+        });
+    });
+    </script> 
+}
