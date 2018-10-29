@@ -3,52 +3,188 @@
 @{
     ViewData["Title"] = "Post details";
 }
-
-<div>
-    <h2>@Model.Title</h2>
-    <p>@Model.Text<p>
-</div>
-<div class="comments">
-    @if (User.Identity.IsAuthenticated)
-    {
-        <form class="form" action="@($"{Model.Id}/comments")" method="post">
-            <div class="form-group">
-                <label for="comment">Comment:</label>
-                <textarea class="form-control" id="comment" name="Text" rows="5"></textarea>
-            </div>
-            <button class="btn btn-success">Submit</button>
-        </form>
-    }
-    <h2 class="mt-2">Comments</h2>
-    @foreach (Comment comment in Model.Comments)
-    {
-        <div>
-            <h2>@comment.Author</h2>
-            <p>@comment.Text<p>
-        </div>
-        <hr>
-    }
-    <div id="comments"></div>
-</div>
-
-@section Scripts {
-    <script type="text/javascript">
-    $(function () {
-        $.ajax({
-            type: "GET",
-            dataType: "json",
-            url: "Post/Show/@Model.Id/comments",
-            success: function(data) {
-                var comment, comments, i, len;
-                comments = data;
-                alert("Hello!")
-                for (i = 0, len = comments.length; i < len; i++)
-                {
-                    comment = comments[i];
-                    $("#comments").prepend("<div class='card comment'>" + comment.text + "</div>");
-                }
-            }
-        });
-    });
-    </script> 
+@section css {
+    <link href="@Url.Content("~/css/single-post.css")" rel="stylesheet" />
 }
+
+<div id="cont">    
+<div class="slider">
+    <img src="~/images/default-blog-image.jpg" alt="Profile Image">
+</div>
+
+
+<section class="post-area section">
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-lg-8 col-md-12 no-right-padding">
+
+                <div class="main-post">
+
+                    <div class="blog-post-inner">
+
+                        <h3 class="title"><b>@Model.Title</b></h3>
+
+                        <p class="para">@Model.Text</p>
+
+                        <ul class="tags">
+                            <li><a href="#">Lorem</a></li>
+                            <li><a href="#">Ipsum</a></li>
+                            <li><a href="#">Dolor</a></li>
+                            <li><a href="#">Consectetur</a></li>
+                        </ul>
+                    </div><!-- blog-post-inner -->
+
+                    <div class="post-icons-area">
+                        <ul class="post-icons">
+                            <li><a href="#"><i class="ion-heart"></i>@Model.Likes.Count()</a></li>
+                            <li><a href="#comm"><i class="ion-chatbubble"></i>@Model.Comments.Count()</a></li>
+                        </ul>
+
+                        <ul class="icons">
+                            <li>POST ACTIONS : </li>
+                            <li><a asp-controller="Blog" asp-action="Show" asp-route-id="@Model.Blog.Id" class="back-btn">Back to blog</a></li>
+                            <li><a asp-controller="Post" asp-action="Edit" asp-route-id="@Model.Id" class="info-btn">Edit</a></li>
+                            <li>
+                                <form asp-controller="Post" asp-action="Delete" asp-route-id="@Model.Id" style='display: inline-block;' method='post'>
+                                    <button type='submit' class='danger-btn' onclick="return confirm('Do you really want to delete this task?')">
+                                        Delete
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+
+                    </div>
+
+                    <div class="post-footer post-info">
+
+                        <div class="left-area">
+                            <a class="avatar" href="#"><img src="~/images/default-user-image.png" alt="Profile Image"></a>
+                        </div>
+
+                        <div class="middle-area">
+                            <a class="name" href="#"><b>@Model.Author.UserName</b></a>
+                            <h6 class="date"> on @Model.Created</h6>
+                        </div>
+
+                    </div><!-- post-info -->
+
+
+                </div><!-- main-post -->
+            </div><!-- col-lg-8 col-md-12 -->
+
+            <div class="col-lg-4 col-md-12 no-left-padding">
+
+                <div class="single-post info-area">
+
+                    <div class="sidebar-area about-area">
+                        <h4 class="title"><b>ABOUT BLOG</b></h4>
+                        <p>@Model.Blog.Description</p>
+                    </div>
+
+                    <div class="tag-area">
+
+                        <h4 class="title"><b>POPULAR TAGS</b></h4>
+                        <ul>
+                            <li><a href="#">Manual</a></li>
+                            <li><a href="#">Liberty</a></li>
+                            <li><a href="#">Recomendation</a></li>
+                            <li><a href="#">Interpritation</a></li>
+                            <li><a href="#">Manual</a></li>
+                            <li><a href="#">Liberty</a></li>
+                            <li><a href="#">Recomendation</a></li>
+                            <li><a href="#">Interpritation</a></li>
+                        </ul>
+
+                    </div><!-- tag-area -->
+
+                </div><!-- info-area -->
+
+            </div><!-- col-lg-4 col-md-12 -->
+
+        </div><!-- row -->
+        <div id="comm"></div>
+    </div><!-- container -->
+</section><!-- post-area -->
+</div>
+
+<section class="comment-section">
+    <div class="container">
+        
+        <div class="row">
+
+            <div class="col-lg-8 col-md-12">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <h4><b>POST COMMENT</b></h4>
+                    <div class="comment-form">
+                        <form action="@($"{Model.Id}/comments")" method="post">
+                            <div class="row">
+
+                                <div class="col-sm-12">
+                                    <textarea class="form-control" placeholder="Enter your comment" id="comment" name="Text" rows="5"></textarea>
+                                </div><!-- col-sm-12 -->
+                                <div class="col-sm-12">
+                                    <button class="submit-btn" type="submit"><b>POST COMMENT</b></button>
+                                </div><!-- col-sm-12 -->
+
+                            </div><!-- row -->
+                        </form>
+                    </div><!-- comment-form -->
+                }
+                <h4><b>COMMENTS(@Model.Comments.Count())</b></h4>
+
+                @foreach (Comment comment in Model.Comments)
+                {
+                    <div class="commnets-area ">
+
+                        <div class="comment">
+
+                            <div class="post-info">
+
+                                <div class="left-area">
+                                    <a class="avatar" href="#"><img src="~/images/default-user-image.png" alt="Profile Image"></a>
+                                </div>
+
+                                <div class="middle-area">
+                                    <a class="name" href="#"><b>@comment.Author.UserName</b></a>
+                                    <h6 class="date">@comment.Created</h6>
+                                </div>
+
+                            </div><!-- post-info -->
+
+                            <p>@comment.Text</p>
+
+                        </div>
+
+                    </div><!-- commnets-area -->
+
+                }
+            </div><!-- col-lg-8 col-md-12 -->
+
+        </div><!-- row -->
+
+    </div><!-- container -->
+</section>
+
+
+<script type="text/javascript">
+$(function () {
+    $.ajax({
+        type: "GET",
+        dataType: "json",
+        url: "Post/Show/@Model.Id/comments",
+        success: function(data) {
+            var comment, comments, i, len;
+            comments = data;
+            alert("Hello!")
+            for (i = 0, len = comments.length; i < len; i++)
+            {
+                comment = comments[i];
+                $("#comments").prepend("<div class='card comment'>" + comment.text + "</div>");
+            }
+        }
+    });
+});
+</script>

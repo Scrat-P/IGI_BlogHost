@@ -2,10 +2,13 @@
 @{
     ViewData["Title"] = "Home Page";
 }
+@section css {
+    <link href="@Url.Content("~/css/posts.css")" rel="stylesheet" />
+}
 
 <section class="blog-area section">
     <div class="container">
-    
+
         <div class="row">
 
             <div class="col-lg-8 col-md-12">
@@ -31,8 +34,8 @@
                                         </h4>
 
                                         <ul class="post-footer">
-                                            <li><a href="#"><i class="ion-heart"></i>57</a></li>
-                                            <li><a href="#"><i class="ion-chatbubble"></i>6</a></li>
+                                            <li><a href="#"><i class="ion-heart"></i>@post.Likes.Count()</a></li>
+                                            <li><a href="#"><i class="ion-chatbubble"></i>@post.Comments.Count()</a></li>
                                         </ul>
 
                                     </div><!-- blog-info -->
@@ -49,7 +52,7 @@
                 <div class="single-post info-area">
 
                     <div class="about-area">
-                        <h4 class="left-panel-title"><b>ABOUT BONA</b></h4>
+                        <h4 class="rigth-panel-title"><b>ABOUT BLOGHOST</b></h4>
                         <p>
                             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
                             ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur
@@ -59,7 +62,7 @@
 
                     <div class="tag-area">
 
-                        <h4 class="left-panel-title"><b>POPULAR TAGS</b></h4>
+                        <h4 class="rigth-panel-title"><b>POPULAR TAGS</b></h4>
                         <ul>
                             <li><a href="#">Manual</a></li>
                             <li><a href="#">Liberty</a></li>

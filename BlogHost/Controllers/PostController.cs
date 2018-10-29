@@ -120,7 +120,10 @@ namespace BlogHost.Controllers
             Post post = _context.Posts
                 .Include(user => user.Author)
                 .Include(blog => blog.Blog)
+                .Include(like => like.Likes)
+                .Include(tag => tag.Tags)
                 .Include(comment => comment.Comments)
+                .ThenInclude(comment => comment.Author)
                 .FirstOrDefault(element => element.Id == id);
 
             if (post == null)

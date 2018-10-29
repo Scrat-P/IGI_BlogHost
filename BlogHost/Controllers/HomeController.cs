@@ -29,23 +29,11 @@ namespace BlogHost.Controllers
             IEnumerable<Post> posts = _context.Posts
                 .Include(element => element.Author)
                 .Include(element => element.Blog)
+                .Include(element => element.Likes)
+                .Include(element => element.Comments)
                 .Where(element => element.Blog.Id == 1);
 
             return View(posts);
-        }
-
-        public IActionResult About()
-        {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
-        }
-
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
         }
     }
 }

@@ -2,6 +2,9 @@
 @{
     ViewData["Title"] = "Blog posts";
 }
+@section css {
+    <link href="@Url.Content("~/css/posts.css")" rel="stylesheet" />
+}
 
 <section class="blog-area section">
     <div class="container">
@@ -28,8 +31,8 @@
                                 </h4>
 
                                 <ul class="post-footer">
-                                    <li><a href="#"><i class="ion-heart"></i>57</a></li>
-                                    <li><a href="#"><i class="ion-chatbubble"></i>6</a></li>
+                                    <li><a href="#"><i class="ion-heart"></i>@post.Likes.Count()</a></li>
+                                    <li><a href="#"><i class="ion-chatbubble"></i>@post.Comments.Count()</a></li>
                                 </ul>
 
                             </div><!-- blog-info -->

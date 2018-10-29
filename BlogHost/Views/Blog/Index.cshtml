@@ -2,14 +2,61 @@
 @{
     ViewData["Title"] = "My Blogs";
 }
-
-@foreach (Blog blog in Model.Items)
-{
-    <div>
-        <h2>@blog.Title</h2>
-        <p>@blog.Description<p>
-    </div>
-    <hr>
+@section css {
+    <link href="@Url.Content("~/css/blogs.css")" rel="stylesheet" />
 }
 
-<page-link page-model="Model.PageViewModel" page-action="Index"></page-link>
+<section class="blog-area section">
+    <div class="container">
+
+        <div class="row">
+            @foreach (Blog blog in Model.Items)
+            {
+
+                <div class="col-lg-10">
+                    <div class="card h-100">
+
+                        <div class="single-post post-style-2 post-style-3">
+
+                            <div class="blog-info">
+
+                                <h3 class="title">
+                                    <a asp-controller="Blog" asp-action="Show" asp-route-id="@blog.Id">
+                                        <b>
+                                            @blog.Title
+                                        </b>
+                                    </a>
+                                </h3>
+
+                                <p>
+                                    @blog.Description
+                                </p>
+                                <hr />
+                                <div class="avatar-area">
+                                    <a class="avatar" href="#"><img src="~/images/default-user-image.png" alt="Profile Image"></a>
+                                    <div class="mid-area">
+                                        <a class="name" href="#"><b>@blog.Author</b></a>
+                                    </div>
+                                    <div class="pull-right">
+                                        <a asp-controller="Blog" asp-action="Edit" asp-route-id="@blog.Id" class="info-btn">Edit</a>
+                                        <form asp-controller="Blog" asp-action="Delete" asp-route-id="@blog.Id" style='display: inline-block;' method='post'>
+                                            <button type='submit' class='danger-btn' onclick="return confirm('Do you really want to delete this task?')">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                            </div><!-- blog-right -->
+
+                        </div><!-- single-post extra-blog -->
+
+                    </div><!-- card -->
+                </div><!-- col-lg-4 col-md-6 -->
+            }
+        </div><!-- row -->
+        <page-link page-model="Model.PageViewModel" page-action="Index"></page-link>
+    </div><!-- container -->
+</section><!-- section -->
+
+    

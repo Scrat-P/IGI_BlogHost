@@ -33,7 +33,7 @@ namespace BlogHost.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 1)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 3)
         {
             var user = await _userManager.GetUserAsync(User);
             List<Blog> blogs = _context.Blogs.Include(author => author.Author).Where(author => author.Author == user).ToList();
@@ -88,6 +88,8 @@ namespace BlogHost.Controllers
             IEnumerable<Post> posts = _context.Posts
                 .Include(element => element.Author)
                 .Include(element => element.Blog)
+                .Include(element => element.Likes)
+                .Include(element => element.Comments)
                 .Where(element => element.Blog.Id == id);
             IEnumerable<Post> postsPerPage = posts
                 .Skip((page - 1) * pageSize)
@@ -149,7 +151,9 @@ namespace BlogHost.Controllers
         [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
-            Blog blog = await _context.Blogs.FirstOrDefaultAsync(element => element.Id == id);
+            Blog blog = await _context.Blogs
+                .Include(element => element.Author)
+                .FirstOrDefaultAsync(element => element.Id == id);
 
             if (blog == null)
             {
