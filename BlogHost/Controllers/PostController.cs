@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using BlogHost.Data;
 using BlogHost.Models;
+using BlogHost.ServiceInterfaces;
 using BlogHost.Models.PostViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
@@ -15,27 +16,23 @@ namespace BlogHost.Controllers
 {
     public class PostController : Controller
     {
-        private ApplicationDbContext _context;
-        private UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IBlogService _blogService;
+        private readonly IPostService _postService;
 
-        public PostController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public PostController(
+            UserManager<ApplicationUser> userManager,
+            IBlogService blogService,
+            IPostService postService)
         {
-            _context = context;
             _userManager = userManager;
+            _blogService = blogService;
+            _postService = postService;
         }
 
-        private bool HasAccess(ApplicationUser entityUser, ClaimsPrincipal currentUser)
-        {
-            var user = _userManager.GetUserAsync(currentUser).Result;
-            var userRoles = _userManager.GetRolesAsync(user).Result;
-
-            return (user.Id == entityUser.Id || userRoles.Contains("admin") || userRoles.Contains("moderator"));
-        }
-
-        [Authorize]
         public IActionResult Create(int? blogId)
         {
-            if (!_context.Blogs.Any(element => element.Id == blogId))
+            if (_blogService.GetBlog(blogId, User) == null)
             {
                 return NotFound();
             }
@@ -48,23 +45,17 @@ namespace BlogHost.Controllers
         }
 
         [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Create(CreatePostViewModel viewModel)
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(CreatePostViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
-                DateTime nowTime = DateTime.Now;
                 Post post = new Post()
                 {
                     Title = viewModel.Title,
-                    Blog = _context.Blogs.FirstOrDefault(blog => blog.Id == viewModel.BlogId),
-                    Author = await _userManager.GetUserAsync(User),
-                    Created = nowTime,
-                    LastUpdated = nowTime,
                     Text = viewModel.Text
                 };
-                _context.Posts.Add(post);
-                _context.SaveChanges();
+                _postService.Create(post, User, viewModel.BlogId);
 
                 return RedirectToAction("Show", "Blog", new { id = viewModel.BlogId });
             }
@@ -72,18 +63,12 @@ namespace BlogHost.Controllers
             return View(viewModel);
         }
 
-        [Authorize]
         public IActionResult Edit(int? id)
         {
-            Post post = _context.Posts.Include(user => user.Author).FirstOrDefault(element => element.Id == id);
-
+            Post post = _postService.GetPost(id, User);
             if (post == null)
             {
                 return NotFound();
-            }
-            else if (!HasAccess(post.Author, User))
-            {
-                return new StatusCodeResult(401);
             }
 
             EditPostViewModel viewModel = new EditPostViewModel()
@@ -96,18 +81,18 @@ namespace BlogHost.Controllers
         }
 
         [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Edit(EditPostViewModel viewModel)
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(EditPostViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
-                Post post = _context.Posts.FirstOrDefault(element => element.Id == viewModel.Id);
-
-                post.Title = viewModel.Title;
-                post.Text = viewModel.Text;
-                post.LastUpdated = DateTime.Now;
-                _context.Update(post);
-                await _context.SaveChangesAsync();
+                Post post = new Post()
+                {
+                    Id = viewModel.Id,
+                    Title = viewModel.Title,
+                    Text = viewModel.Text
+                };
+                _postService.Edit(post);
 
                 return RedirectToAction("Show", "Post", new { id = post.Id });
             }
@@ -115,17 +100,10 @@ namespace BlogHost.Controllers
             return View(viewModel);
         }
 
+        [AllowAnonymous]
         public IActionResult Show(int? id)
         {
-            Post post = _context.Posts
-                .Include(user => user.Author)
-                .Include(blog => blog.Blog)
-                .Include(like => like.Likes)
-                .Include(tag => tag.Tags)
-                .Include(comment => comment.Comments)
-                .ThenInclude(comment => comment.Author)
-                .FirstOrDefault(element => element.Id == id);
-
+            Post post = _postService.GetPost(id, User);
             if (post == null)
             {
                 return NotFound();
@@ -134,28 +112,18 @@ namespace BlogHost.Controllers
             return View(post);
         }
 
-        //[HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Delete(int? id)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int? id)
         {
-            Post post = await _context.Posts
-                .Include(user => user.Author)
-                .Include(blog => blog.Blog)
-                .FirstOrDefaultAsync(element => element.Id == id);
+            int? blogId = _postService.GetPost(id, User)?.Blog.Id;
+            _postService.Delete(id, User);
 
-            if (post == null)
+            if (blogId == null)
             {
                 return NotFound();
             }
-            else if (!HasAccess(post.Author, User))
-            {
-                return new StatusCodeResult(401);
-            }
-
-            _context.Posts.Remove(post);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Show", "Blog", new { id = post.Blog.Id });
+            return RedirectToAction("Show", "Blog", new { id = blogId });
         }
 
         //public IActionResult PutLike(int? id)

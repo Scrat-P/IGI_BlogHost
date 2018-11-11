@@ -25,7 +25,7 @@ namespace BlogHost.Repositories
                 .Include(element => element.Blog)
                 .Include(element => element.Likes)
                 .Include(element => element.Comments)
-                .Where(element => element.Blog.Id == id);
+                .Where(element => element.Blog.Id == blogId);
         }
 
         public void Create(Post post)
@@ -52,7 +52,12 @@ namespace BlogHost.Repositories
         public Post GetPost(int? id)
         {
             var post = _context.Posts
-                .Include(element => element.Author)
+                .Include(user => user.Author)
+                .Include(blog => blog.Blog)
+                .Include(like => like.Likes)
+                .Include(tag => tag.Tags)
+                .Include(comment => comment.Comments)
+                .ThenInclude(comment => comment.Author)
                 .FirstOrDefault(element => element.Id == id);
             return post;
         }

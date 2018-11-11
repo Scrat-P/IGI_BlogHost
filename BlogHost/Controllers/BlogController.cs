@@ -17,15 +17,18 @@ namespace BlogHost.Controllers
     [Authorize]
     public class BlogController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IBlogService _blogService;
+        private readonly IPostService _postService;
 
-        public BlogController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IBlogService blogService)
+        public BlogController(
+            UserManager<ApplicationUser> userManager, 
+            IBlogService blogService,
+            IPostService postService)
         {
-            _context = context;
             _userManager = userManager;
             _blogService = blogService;
+            _postService = postService;
         }
 
         public IActionResult Index(int page = 1, int pageSize = 3)
@@ -50,17 +53,16 @@ namespace BlogHost.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateBlogViewModel viewModel)
+        public IActionResult Create(CreateBlogViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
                 Blog blog = new Blog()
                 {
-                    Author = await _userManager.GetUserAsync(User),
                     Title = viewModel.Title,
                     Description = viewModel.Description
                 };
-                _blogService.Create(blog);
+                _blogService.Create(blog, User);
                 
                 return RedirectToAction("Index");
 
@@ -77,17 +79,10 @@ namespace BlogHost.Controllers
                 return NotFound();
             }
 
-            IEnumerable<Post> posts = _context.Posts
-                .Include(element => element.Author)
-                .Include(element => element.Blog)
-                .Include(element => element.Likes)
-                .Include(element => element.Comments)
-                .Where(element => element.Blog.Id == id);
-            IEnumerable<Post> postsPerPage = posts
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize);
+            int postsCount;
+            IEnumerable<Post> postsPerPage = _postService.GetPagePosts(page, pageSize, (int)id, out postsCount);
 
-            PageViewModel pageViewModel = new PageViewModel(posts.Count(), page, pageSize);
+            PageViewModel pageViewModel = new PageViewModel(postsCount, page, pageSize);
             IndexViewModel<Post> viewModel = new IndexViewModel<Post>
             {
                 PageViewModel = pageViewModel,

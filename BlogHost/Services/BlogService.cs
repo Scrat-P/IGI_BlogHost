@@ -13,12 +13,12 @@ namespace BlogHost.Services
 {
     public class BlogService : IBlogService
     {
-        private readonly IBlogRepository _repository;
+        private readonly IBlogRepository _blogRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public BlogService(UserManager<ApplicationUser> userManager, IBlogRepository repository)
+        public BlogService(UserManager<ApplicationUser> userManager, IBlogRepository blogRepository)
         {
-            _repository = repository;
+            _blogRepository = blogRepository;
             _userManager = userManager;
         }
 
@@ -29,7 +29,7 @@ namespace BlogHost.Services
 
         private bool HasAccess(int? blogId, ClaimsPrincipal currentUser)
         {
-            Blog blog = _repository.GetBlog(blogId);
+            Blog blog = _blogRepository.GetBlog(blogId);
 
             var user = GetUser(currentUser);
             var userRoles = _userManager.GetRolesAsync(user).Result;
@@ -41,7 +41,7 @@ namespace BlogHost.Services
         {
             if (HasAccess(id, currentUser))
             {
-                _repository.Delete(id);
+                _blogRepository.Delete(id);
             }
         }
 
@@ -51,29 +51,30 @@ namespace BlogHost.Services
             {
                 return null;
             }
-            return _repository.GetBlog(id);
+            return _blogRepository.GetBlog(id);
         }
 
         public void Edit(Blog blog)
         {
-            Blog databaseBlog = _repository.GetBlog(blog.Id);
+            Blog databaseBlog = _blogRepository.GetBlog(blog.Id);
             databaseBlog.Title = blog.Title;
             databaseBlog.Description = blog.Description;
-            _repository.Update(databaseBlog);
+            _blogRepository.Update(databaseBlog);
         }
 
-        public void Create(Blog blog)
+        public void Create(Blog blog, ClaimsPrincipal currentUser)
         {
-
+            blog.Author = GetUser(currentUser);
+            _blogRepository.Create(blog);
         }
 
         public IEnumerable<Blog> GetPageBlogs(int page, int pageSize, ClaimsPrincipal currentUser, out int blogsCount)
         {
             var user = GetUser(currentUser);
 
-            IEnumerable<Blog> blogs = _repository.GetBlogList(user);
+            IEnumerable<Blog> blogs = _blogRepository.GetBlogList(user);
             blogsCount = blogs.Count();
-            IEnumerable<Blog> blogsPerPage = blogs.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            IEnumerable<Blog> blogsPerPage = blogs.Skip((page - 1) * pageSize).Take(pageSize);
 
             return blogsPerPage;
         }

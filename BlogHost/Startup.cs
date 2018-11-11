@@ -36,9 +36,11 @@ namespace BlogHost
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IBlogService, BlogService>();
+            services.AddTransient<IPostService, PostService>();
 
             // Add application repositories.
             services.AddTransient<IBlogRepository, BlogRepository>();
+            services.AddTransient<IPostRepository, PostRepository>();
 
             services.AddSignalR();
             services.AddMvc();
