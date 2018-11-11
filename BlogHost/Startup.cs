@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using BlogHost.Data;
+using BlogHost.Hubs;
 using BlogHost.Models;
 using BlogHost.Services;
+using BlogHost.Repositories;
+using BlogHost.ServiceInterfaces;
+using BlogHost.RepositoryInterfaces;
 
 namespace BlogHost
 {
@@ -35,7 +35,12 @@ namespace BlogHost
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
+            services.AddTransient<IBlogService, BlogService>();
 
+            // Add application repositories.
+            services.AddTransient<IBlogRepository, BlogRepository>();
+
+            services.AddSignalR();
             services.AddMvc();
         }
 
@@ -57,6 +62,10 @@ namespace BlogHost
 
             app.UseAuthentication();
 
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<CommentHub>("/Post/Show/{id}/Сomments");
+            });
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

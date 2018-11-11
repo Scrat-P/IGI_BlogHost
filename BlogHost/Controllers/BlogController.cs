@@ -2,45 +2,38 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using BlogHost.Data;
 using BlogHost.Models;
+using BlogHost.ServiceInterfaces;
 using BlogHost.Models.BlogViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 
 namespace BlogHost.Controllers
 {
+    [Authorize]
     public class BlogController : Controller
     {
-        private ApplicationDbContext _context;
-        private UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IBlogService _blogService;
 
-        public BlogController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public BlogController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IBlogService blogService)
         {
             _context = context;
             _userManager = userManager;
+            _blogService = blogService;
         }
 
-        private bool HasAccess(ApplicationUser entityUser, ClaimsPrincipal currentUser)
+        public IActionResult Index(int page = 1, int pageSize = 3)
         {
-            var user = _userManager.GetUserAsync(currentUser).Result;
-            var userRoles = _userManager.GetRolesAsync(user).Result;
+            int blogsCount;
+            var blogsPerPage = _blogService.GetPageBlogs(page, pageSize, User, out blogsCount);
 
-            return (user.Id == entityUser.Id || userRoles.Contains("admin") || userRoles.Contains("moderator")); 
-        }
-
-        [Authorize]
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 3)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            List<Blog> blogs = _context.Blogs.Include(author => author.Author).Where(author => author.Author == user).ToList();
-
-            IEnumerable<Blog> blogsPerPage = blogs.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            PageViewModel pageViewModel = new PageViewModel(blogs.Count(), page, pageSize);
+            PageViewModel pageViewModel = new PageViewModel(blogsCount, page, pageSize);
             IndexViewModel<Blog> viewModel = new IndexViewModel<Blog>
             {
                 PageViewModel = pageViewModel,
@@ -50,27 +43,25 @@ namespace BlogHost.Controllers
             return View(viewModel);
         }
 
-        [Authorize]
         public IActionResult Create()
         {
             return View();
         }
 
         [HttpPost]
-        [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateBlogViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
                 Blog blog = new Blog()
                 {
+                    Author = await _userManager.GetUserAsync(User),
                     Title = viewModel.Title,
                     Description = viewModel.Description
                 };
-
-                blog.Author = await _userManager.GetUserAsync(User);
-                _context.Blogs.Add(blog);
-                _context.SaveChanges();
+                _blogService.Create(blog);
+                
                 return RedirectToAction("Index");
 
             }
@@ -78,9 +69,10 @@ namespace BlogHost.Controllers
             return View(viewModel);
         }
 
+        [AllowAnonymous]
         public IActionResult Show(int? id, int page = 1, int pageSize = 9)
         {
-            if (!_context.Blogs.Any(element => element.Id == id))
+            if (_blogService.GetBlog(id, User) == null)
             {
                 return NotFound();
             }
@@ -105,18 +97,12 @@ namespace BlogHost.Controllers
             return View(viewModel);
         }
 
-        [Authorize]
         public IActionResult Edit(int? id)
         {
-            Blog blog = _context.Blogs.Include(user => user.Author).FirstOrDefault(element => element.Id == id);
-
+            Blog blog = _blogService.GetBlog(id, User);
             if (blog == null)
             {
                 return NotFound();
-            }
-            else if (!HasAccess(blog.Author, User))
-            {
-                return new StatusCodeResult(401);
             }
 
             EditBlogViewModel viewModel = new EditBlogViewModel()
@@ -129,17 +115,18 @@ namespace BlogHost.Controllers
         }
 
         [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Edit(EditBlogViewModel viewModel)
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(EditBlogViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
-                Blog blog = _context.Blogs.FirstOrDefault(element => element.Id == viewModel.Id);
-
-                blog.Title = viewModel.Title;
-                blog.Description = viewModel.Description;
-                _context.Update(blog);
-                await _context.SaveChangesAsync();
+                Blog blog = new Blog()
+                {
+                    Id = viewModel.Id,
+                    Title = viewModel.Title,
+                    Description = viewModel.Description
+                };
+                _blogService.Edit(blog);
 
                 return RedirectToRoute(new { controller = "Blog", action = "Show", id = blog.Id });
             }
@@ -148,25 +135,10 @@ namespace BlogHost.Controllers
         }
 
         [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Delete(int? id)
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int? id)
         {
-            Blog blog = await _context.Blogs
-                .Include(element => element.Author)
-                .FirstOrDefaultAsync(element => element.Id == id);
-
-            if (blog == null)
-            {
-                return NotFound();
-            }
-            else if (!HasAccess(blog.Author, User))
-            {
-                return new StatusCodeResult(401);
-            }
-
-            _context.Blogs.Remove(blog);
-            await _context.SaveChangesAsync();
-
+            _blogService.Delete(id, User);
             return RedirectToAction("Index");
         }
     }

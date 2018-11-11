@@ -7,111 +7,111 @@
     <link href="@Url.Content("~/css/single-post.css")" rel="stylesheet" />
 }
 
-<div id="cont">    
-<div class="slider">
-    <img src="~/images/default-blog-image.jpg" alt="Profile Image">
-</div>
+<div id="cont">
+    <div class="slider">
+        <img src="~/images/default-blog-image.jpg" alt="Profile Image">
+    </div>
 
 
-<section class="post-area section">
-    <div class="container">
+    <section class="post-area section">
+        <div class="container">
 
-        <div class="row">
+            <div class="row">
 
-            <div class="col-lg-8 col-md-12 no-right-padding">
+                <div class="col-lg-8 col-md-12 no-right-padding">
 
-                <div class="main-post">
+                    <div class="main-post">
 
-                    <div class="blog-post-inner">
+                        <div class="blog-post-inner">
 
-                        <h3 class="title"><b>@Model.Title</b></h3>
+                            <h3 class="title"><b>@Model.Title</b></h3>
 
-                        <p class="para">@Model.Text</p>
+                            <p class="para">@Model.Text</p>
 
-                        <ul class="tags">
-                            <li><a href="#">Lorem</a></li>
-                            <li><a href="#">Ipsum</a></li>
-                            <li><a href="#">Dolor</a></li>
-                            <li><a href="#">Consectetur</a></li>
-                        </ul>
-                    </div><!-- blog-post-inner -->
+                            <ul class="tags">
+                                <li><a href="#">Lorem</a></li>
+                                <li><a href="#">Ipsum</a></li>
+                                <li><a href="#">Dolor</a></li>
+                                <li><a href="#">Consectetur</a></li>
+                            </ul>
+                        </div><!-- blog-post-inner -->
 
-                    <div class="post-icons-area">
-                        <ul class="post-icons">
-                            <li><a href="#"><i class="ion-heart"></i>@Model.Likes.Count()</a></li>
-                            <li><a href="#comm"><i class="ion-chatbubble"></i>@Model.Comments.Count()</a></li>
-                        </ul>
+                        <div class="post-icons-area">
+                            <ul class="post-icons">
+                                <li><a href="#"><i class="ion-heart"></i>@Model.Likes.Count()</a></li>
+                                <li><a href="#comm"><i class="ion-chatbubble"></i>@Model.Comments.Count()</a></li>
+                            </ul>
 
-                        <ul class="icons">
-                            <li>POST ACTIONS : </li>
-                            <li><a asp-controller="Blog" asp-action="Show" asp-route-id="@Model.Blog.Id" class="back-btn">Back to blog</a></li>
-                            <li><a asp-controller="Post" asp-action="Edit" asp-route-id="@Model.Id" class="info-btn">Edit</a></li>
-                            <li>
-                                <form asp-controller="Post" asp-action="Delete" asp-route-id="@Model.Id" style='display: inline-block;' method='post'>
-                                    <button type='submit' class='danger-btn' onclick="return confirm('Do you really want to delete this task?')">
-                                        Delete
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
+                            <ul class="icons">
+                                <li>POST ACTIONS : </li>
+                                <li><a asp-controller="Blog" asp-action="Show" asp-route-id="@Model.Blog.Id" class="back-btn">Back to blog</a></li>
+                                <li><a asp-controller="Post" asp-action="Edit" asp-route-id="@Model.Id" class="info-btn">Edit</a></li>
+                                <li>
+                                    <form asp-controller="Post" asp-action="Delete" asp-route-id="@Model.Id" style='display: inline-block;' method='post'>
+                                        <button type='submit' class='danger-btn' onclick="return confirm('Do you really want to delete this task?')">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
 
-                    </div>
-
-                    <div class="post-footer post-info">
-
-                        <div class="left-area">
-                            <a class="avatar" href="#"><img src="~/images/default-user-image.png" alt="Profile Image"></a>
                         </div>
 
-                        <div class="middle-area">
-                            <a class="name" href="#"><b>@Model.Author.UserName</b></a>
-                            <h6 class="date"> on @Model.Created</h6>
+                        <div class="post-footer post-info">
+
+                            <div class="left-area">
+                                <a class="avatar" href="#"><img src="~/images/default-user-image.png" alt="Profile Image"></a>
+                            </div>
+
+                            <div class="middle-area">
+                                <a class="name" href="#"><b>@Model.Author.UserName</b></a>
+                                <h6 class="date"> on @Model.Created</h6>
+                            </div>
+
+                        </div><!-- post-info -->
+
+
+                    </div><!-- main-post -->
+                </div><!-- col-lg-8 col-md-12 -->
+
+                <div class="col-lg-4 col-md-12 no-left-padding">
+
+                    <div class="single-post info-area">
+
+                        <div class="sidebar-area about-area">
+                            <h4 class="title"><b>ABOUT BLOG</b></h4>
+                            <p>@Model.Blog.Description</p>
                         </div>
 
-                    </div><!-- post-info -->
+                        <div class="tag-area">
 
+                            <h4 class="title"><b>POPULAR TAGS</b></h4>
+                            <ul>
+                                <li><a href="#">Manual</a></li>
+                                <li><a href="#">Liberty</a></li>
+                                <li><a href="#">Recomendation</a></li>
+                                <li><a href="#">Interpritation</a></li>
+                                <li><a href="#">Manual</a></li>
+                                <li><a href="#">Liberty</a></li>
+                                <li><a href="#">Recomendation</a></li>
+                                <li><a href="#">Interpritation</a></li>
+                            </ul>
 
-                </div><!-- main-post -->
-            </div><!-- col-lg-8 col-md-12 -->
+                        </div><!-- tag-area -->
 
-            <div class="col-lg-4 col-md-12 no-left-padding">
+                    </div><!-- info-area -->
 
-                <div class="single-post info-area">
+                </div><!-- col-lg-4 col-md-12 -->
 
-                    <div class="sidebar-area about-area">
-                        <h4 class="title"><b>ABOUT BLOG</b></h4>
-                        <p>@Model.Blog.Description</p>
-                    </div>
-
-                    <div class="tag-area">
-
-                        <h4 class="title"><b>POPULAR TAGS</b></h4>
-                        <ul>
-                            <li><a href="#">Manual</a></li>
-                            <li><a href="#">Liberty</a></li>
-                            <li><a href="#">Recomendation</a></li>
-                            <li><a href="#">Interpritation</a></li>
-                            <li><a href="#">Manual</a></li>
-                            <li><a href="#">Liberty</a></li>
-                            <li><a href="#">Recomendation</a></li>
-                            <li><a href="#">Interpritation</a></li>
-                        </ul>
-
-                    </div><!-- tag-area -->
-
-                </div><!-- info-area -->
-
-            </div><!-- col-lg-4 col-md-12 -->
-
-        </div><!-- row -->
-        <div id="comm"></div>
-    </div><!-- container -->
-</section><!-- post-area -->
+            </div><!-- row -->
+            <div id="comm"></div>
+        </div><!-- container -->
+    </section><!-- post-area -->
 </div>
 
 <section class="comment-section">
     <div class="container">
-        
+
         <div class="row">
 
             <div class="col-lg-8 col-md-12">
@@ -119,7 +119,7 @@
                 {
                     <h4><b>POST COMMENT</b></h4>
                     <div class="comment-form">
-                        <form action="@($"{Model.Id}/comments")" method="post">
+                        <form action="@($"{Model.Id}/Comments")" method="post">
                             <div class="row">
 
                                 <div class="col-sm-12">
@@ -137,7 +137,7 @@
 
                 @foreach (Comment comment in Model.Comments)
                 {
-                    <div class="commnets-area ">
+                    <div class="commnets-area">
 
                         <div class="comment">
 
@@ -161,30 +161,32 @@
                     </div><!-- commnets-area -->
 
                 }
+
             </div><!-- col-lg-8 col-md-12 -->
 
+            <div id="commen"></div>
         </div><!-- row -->
 
     </div><!-- container -->
 </section>
 
 
-<script type="text/javascript">
-$(function () {
-    $.ajax({
-        type: "GET",
-        dataType: "json",
-        url: "Post/Show/@Model.Id/comments",
-        success: function(data) {
-            var comment, comments, i, len;
-            comments = data;
-            alert("Hello!")
-            for (i = 0, len = comments.length; i < len; i++)
-            {
-                comment = comments[i];
-                $("#comments").prepend("<div class='card comment'>" + comment.text + "</div>");
-            }
-        }
+<script src="~/js/signalr.min.js"></script>
+<script>
+    let hubUrl = "@($"/Post/Show/{Model.Id}/Comments")";
+    const hubConnection = new signalR.HubConnectionBuilder()
+        .withUrl(hubUrl)
+        .build();
+
+    // получение сообщения от сервера
+    hubConnection.on('Notify', function (comment) {
+
+        // создает элемент <p> для сообщения пользователя
+        let elem = document.createElement("p");
+        elem.appendChild(document.createTextNode(comment.text));
+
+        document.getElementById("commen").appendChild(elem);
+
     });
-});
+    hubConnection.start();
 </script>

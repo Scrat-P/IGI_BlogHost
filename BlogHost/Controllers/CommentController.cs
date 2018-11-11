@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BlogHost.Data;
+using BlogHost.Hubs;
 using BlogHost.Models;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
 
 namespace BlogHost.Controllers
@@ -18,11 +20,13 @@ namespace BlogHost.Controllers
     {
         private readonly ApplicationDbContext _context;
         private UserManager<ApplicationUser> _userManager;
+        private IHubContext<CommentHub> _commentHubContext { get; set; }
 
-        public CommentController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public CommentController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IHubContext<CommentHub> commentHubContext)
         {
             _context = context;
             _userManager = userManager;
+            _commentHubContext = commentHubContext;
         }
 
         // GET: api/Comments
@@ -59,33 +63,6 @@ namespace BlogHost.Controllers
             return Ok(comment);
         }
 
-        // PUT: api/Comments/5
-        [HttpPut("{id}")]
-        [Authorize]
-        public async Task<IActionResult> PutComment([FromRoute] int id, [FromBody] Comment comment, int post_id)
-        {
-            Debug.WriteLine("-------------------------------------------------------------------------------");
-            Debug.WriteLine("In put comment");
-            Debug.WriteLine("-------------------------------------------------------------------------------");
-            if (!PostExists(post_id)) { return NotFound(); }
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (id != comment.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(comment).State = EntityState.Modified;
-
-            
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
         // POST: api/Comments
         [HttpPost]
         [Route("")]
@@ -103,6 +80,8 @@ namespace BlogHost.Controllers
             comment.LastUpdated = comment.Created = DateTime.Now;
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
+
+            await _commentHubContext.Clients.All.SendAsync("Notify", comment);
 
             //return CreatedAtAction("GetComment", new { id = comment.ID }, comment);
             return Redirect($"/Post/Show/{post_id}");
